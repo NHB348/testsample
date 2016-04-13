@@ -19,9 +19,7 @@ wp8:
 android:
   version: "4.2.4"
   emulator: "ControlBEAM"
-  capabilities:
-#sdk: "MC3000c50b (ARMV4I)"
-#sdk: "Windows Mobile 6.5.3 Professional DTK (ARMV4I)"
+
 
 
 
