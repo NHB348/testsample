@@ -1,47 +1,27 @@
-sdkversion: "3.5.0"
-name: "compliancetest_js"
-app_type: "rhoelements"
-version: "5.0"
-vendor: "rhomobile"
-build: "release"
-bbver: "4.6"
+#sdk: "C:/MotorolaRhoMobileSuite5.0.2/ruby/lib/ruby/gems/1.9.1/gems/rhodes-5.0.2"
+sdkversion: "5.0.0"
+name: "ControlBEAM"
+version: 1.0
+vendor: "ControlBEAM"
+build: "debug"
 applog: "rholog.txt"
-encrypt_database: 0
-#capabilities:
-#  - read_sdcard
-#  - write_sdcard
-#rhohub:
-#  url: "https://appstaging.rhohub.com/api/v1/"
-#connection:
-#  proxy: "http://wwwgate0.mot.com:1080"
+javascript_application: true
 iphone:
-  configuration: Release
-  sdk: iphoneos8.3
-  provisionprofile:
+  configuration: "Release"
+  sdk: "iphonesimulator7.0"
+  provisionprofile: 
   codesignidentity: "iPhone Developer"
-  entitlements: ./production/Entitlements.plist
-  BundleIdentifier: com.rhomobile.compliancetestjs
-  BundleURLScheme: compliancetestjs
-  extensions: ["nativeBridgeTest", "barcode", "sensor", "screenorientation", "audiocapture", "mediacapture"]
-wp:
-  productid: "88e69430-071c-0131-3d46-606720a825c8"
-symbian:
-  uid: "0xede7d59e"
+  entitlements: 
+  BundleIdentifier: "com.rhomobile.controlbeam"
+  BundleURLScheme: "controlbeam"
+wp8:
+  productid: "336b1640-fc2b-0131-c073-002713a3a9ef"
 android:
-  android_title: 1
+  manifest_template: "AndroidManifest.erb"
   version: "4.2.4"
-  abis: [arm, x86]
-  manifest_template: AndroidManifest.erb
-  extensions:
-    - rhoconnect-client
-    - audiocapture
-    - signature
-    - barcode
-    - indicators
-    - cardreader
-    - mediaplayer
-    - screenorientation
-    - sensor
-    - printing
-    - printing_zebra
-    - mediacapture
+  emulator: "ControlBEAM"
+  capabilities:
+#sdk: "MC3000c50b (ARMV4I)"
+#sdk: "Windows Mobile 6.5.3 Professional DTK (ARMV4I)"
+
+capabilities:
