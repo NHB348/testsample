@@ -5,7 +5,6 @@ version: 1.0
 vendor: "ControlBEAM"
 build: "debug"
 applog: "rholog.txt"
-javascript_application: true
 iphone:
   configuration: "Release"
   sdk: "iphonesimulator7.0"
