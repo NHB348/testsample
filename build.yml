@@ -17,10 +17,8 @@ iphone:
 wp8:
   productid: "336b1640-fc2b-0131-c073-002713a3a9ef"
 android:
+  manifest_template: "AndroidManifest.erb"
   version: "4.2.4"
   emulator: "ControlBEAM"
-
-
-
-
+  capabilities:
 
