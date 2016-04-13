@@ -1,0 +1,245 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <title>ControlBEAM</title>
+    <meta name="viewport" content="width=480px, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <script type="text/javascript" src="js/BEAMruntime.js"></script>
+    //<script type="text/javascript" src="js/rhoapi-modules.js"></script>
+    <script type="text/javascript" src="js/sc-core.js"></script>
+    
+</head>
+<body id='bodyID' onload="javascript:Booter();" style='margin-left: 0; margin-top: 0;
+    margin-right: 0; margin-bottom: 0; background: #FFFFFF'>
+    <div id='DynamicHTML'>
+        <div id="loading" style="position: absolute; width: 100%; height: 100%; text-align: center; top: 0px;background: #000000">
+            <img alt="appCase.mobi logo" src="images/loading.png" style='max-width: 320px' />
+        </div>
+    </div>
+    <div id='DialogBox'>
+    </div>
+    <script type="text/javascript">
+        var LayoutTypeCode = 0;
+        var CurrentDate = new Date();
+        var SecondTimer = setInterval(function () { ProcessEvent(5, 0, CurrentDate.getTime()) }, 1000);
+        var winPop = new Array();
+		var NativeContainer = 0; //0=none, 1=RhoMobile
+		var MACAddress = '00:0C:29:8E:08:AB';  //temp
+		var BootingEventType = 1; //1=New Framework & App, 4=Process Refresh
+		
+        window.onresize = function () {
+            if (document.all) {
+                window.resizeEnd = (window.resizeEnd == null) ? (new Object()) : window.resizeEnd;
+                clearTimeout(window.resizeEnd);
+                window.resizeEnd = setTimeout(UpdateScreenSize, 1);
+            }
+            else {
+                UpdateScreenSize();
+            }
+        };
+
+        function UpdateScreenSize() {
+            PreviousLayoutTypeCode = LayoutTypeCode;
+            ScreenWidth = GetScreenWidth();
+            ScreenHeight = GetScreenHeight();
+            BEAMRequest[0][13] = ScreenWidth;
+            BEAMRequest[0][14] = ScreenHeight;
+            ProcessEvent(2, 0, " "); //Screen Size Change
+        }
+
+        function Booter() {
+            	ScreenWidth = GetScreenWidth();
+            	ScreenHeight = GetScreenHeight();
+         	BEAMRequest[0][0] = 1; //RequestType
+          	BEAMRequest[0][1] = 1; //RemoteConnectType
+         	BEAMRequest[0][2] = ""; //RemoteConnection
+       		BEAMRequest[0][3] = 0; //ResourceConnectType
+        	BEAMRequest[0][4] = ""; //ResourceConnection
+      		BEAMRequest[0][5] = 0; //StatementType
+       		BEAMRequest[0][6] = ""; //Statement
+         	BEAMRequest[0][7] = 4; //DomainType 4=Device
+         	BEAMRequest[0][8] = MACAddress; //DomainIdentifier
+            	BEAMRequest[0][13] = ScreenWidth;
+            	BEAMRequest[0][14] = ScreenHeight;
+            	BEAMRequest[0][15] = 1; //LanguageID
+            	BEAMRequest[0][16] = 0; //ParentRI
+		if (NativeContainer == 1) {
+	         	BEAMRequest[0][0] = 2; //RequestType
+    	      		BEAMRequest[0][1] = 0; //RemoteConnectType
+       			BEAMRequest[0][3] = 19; //ResourceConnectType
+       			BEAMRequest[0][6] = "3"; //Statement
+        	}
+          	SendReceive();
+          	ProcessEvent(BootingEventType, 0, " "); 
+        }
+
+        function ReceiveSendMonitor(Request) {
+            try {
+                ProcessCode = 10000;
+                for (var RI = 0; RI < Request.length; RI++) {
+	                ProcessRequestRow(RI, Request, 1);
+	            }
+            }
+            catch (err) {
+                ErrorHandler(ProcessCode, err.message);
+            }
+        }
+        
+
+        function ProcessRequestRow(RI, Request, RemoteResource) {
+            try {
+                ProcessCode = 10010;
+                RequestType = parseInt(Request[RI][0]);
+        		RemoteConnectType = parseInt(Request[RI][1]);
+        		RemoteConnection = Request[RI][2];
+        		ResourceConnectType = parseInt(Request[RI][3]);
+        		ResourceConnection = Request[RI][4];
+        		StatementType = Request[RI][5];
+        		Statement = Request[RI][6];
+                if (RemoteConnectType > 0) { //Send BEAMRequest to Remote Agent
+          		  //temp fix next line
+            		if (ResourceConnectType==4 && Request[RI][5]>0){
+            			Statement = JSON.stringify(Statement);
+            			Request[RI][6]=Statement.replace(/'/g, "''");
+            		}
+            		ResourceHandler(RemoteConnectType, RemoteConnection, 0, JSON.stringify(Request));
+        		}
+        		else {
+            		ResourceHandler(ConnectType, ConnectString, StatementType, Statement);
+        		}
+            }
+            catch (err) {
+                ErrorHandler(ProcessCode, err.message);
+            }
+        }
+
+        function ResourceHandler(ConnectType, ConnectString, StatementType, Statement) {
+            try {
+                ProcessCode = 20000;
+                switch (ConnectType) {
+                    case 1:  //SPTP
+                        ProcessCode = 21010;
+                        ConnectString = "http://www.controlbeam.net/ControlBEAM/Service1.svc/basic";
+            		Statement = "<s:Envelope xmlns:s='http://schemas.xmlsoap.org/soap/envelope/'>" +
+                        "<s:Body>" +
+                            "<ReceiveSendMonitor xmlns='http://tempuri.org/'>" +
+                                "<request>" + Statement + "</request>" +
+                            "</ReceiveSendMonitor>" +
+                        "</s:Body>" +
+                    	"</s:Envelope>";
+                        	ConnectObject = new XMLHttpRequest();
+                        	ConnectObject.open('POST', ConnectString, false);
+                        	ConnectObject.setRequestHeader("Content-type", "text/xml; charset=utf-8");
+                        	ConnectObject.setRequestHeader("SOAPAction", "http://tempuri.org/IService1/ReceiveSendMonitor");
+                        	ConnectObject.send(Statement);
+                        	Response = ConnectObject.responseXML.text;
+                        BEAMResponse = JSON.parse(Response);
+                        break;
+
+                    case 3:  //HTML DOM
+                        ProcessCode = 21030;
+                        var ConnectArray = ConnectString.split(".");
+                        ConnectObject = document.getElementById(ConnectArray[0]);
+                        if (ConnectArray.length > 2) { 
+                            ConnectObject.style.setProperty(ConnectArray[2], Statement);
+                        }
+                        else {
+                            ConnectObject.innerHTML = Statement;
+                        }
+                        break;
+
+
+                    case 19:  //File System
+                        ProcessCode = 21190;
+                        var publicFolder;
+                        var FilePath;
+                        
+                        switch (Statement) {
+                            case '1':  //Quit
+                                ProcessCode = 21191;
+                                Rho.Application.quit();
+                                break;
+
+                            case '3':  //Read Process dataset in BEAMdatastore
+                                ProcessCode = 21193;
+                                publicFolder = Rho.Application.publicFolder;
+                                FilePath = publicFolder + '/BEAMdatastore.txt';
+                                if (Rho.RhoFile.isFile(FilePath)) {
+                                   Response = Rho.RhoFile.read(FilePath);
+                                   BEAMResponse[0][0] = 2; //Process
+                                   BEAMResponse[0][1] = Response;
+                                   BootingEventType = 4; //Process Refresh
+                                }
+                                else {
+            						BEAMRequest[0][0] = 1; //RequestType
+            						BEAMRequest[0][1] = 1; //RemoteConnectType
+            						BEAMRequest[0][2] = ""; //RemoteConnection
+            						BEAMRequest[0][3] = 0; //ResourceConnectType
+            						BEAMRequest[0][4] = ""; //ResourceConnection
+            						BEAMRequest[0][5] = 0; //StatementType
+            						BEAMRequest[0][6] = ""; //Statement
+            						BEAMRequest[0][7] = 4; //DomainType
+            						BEAMRequest[0][8] = '00:0C:29:8E:08:AB'; //DomainIdentifier
+            						ResourceHandler(1, "", 0, JSON.stringify(BEAMRequest));
+                                }
+                                break;
+
+                            case '4':  //Write Process dataset in BEAMdatastore
+                                ProcessCode = 21194;
+                                publicFolder = Rho.Application.publicFolder;
+                                FilePath = publicFolder + '/BEAMdatastore.txt';
+                                Response = JSON.stringify(Process);
+                                var FileObject = new Rho.RhoFile(FilePath, 3); //3=Open for Write
+								var BytesWritten = FileObject.write(Response);
+                              	FileObject.close();
+                                break;
+                                
+                        }
+                        break;
+                   }     
+            }
+            catch (err) {
+            	alert('ResourceHandler error:' + ProcessCode+ ',' + err.name + ',' + err.message);
+                ErrorHandler(ProcessCode, err.message);
+            }
+        }
+
+        function GetScreenWidth() {
+            ScreenWidth = screen.width;
+            if (typeof (window.innerWidth) == 'number') {//most modern browsers
+                ScreenWidth = window.innerWidth;
+            }
+            else if (document.documentElement && (document.documentElement.clientWidth || document.documentElement.clientWidth)) {//IE 6+ in 'standards compliant mode'
+                ScreenWidth = document.documentElement.clientWidth;
+            }
+            else if (document.body && (document.body.clientWidth || document.body.clientWidth)) {//IE 4 compatible
+                ScreenWidth = document.body.clientWidth;
+            }
+            return ScreenWidth;
+        }
+
+        function GetScreenHeight() {
+            ScreenHeight = screen.height;
+            if (typeof (window.innerWidth) == 'number') {//most modern browsers
+                ScreenHeight = window.innerHeight;
+            }
+            else if (document.documentElement && (document.documentElement.clientWidth || document.documentElement.clientHeight)) {//IE 6+ in 'standards compliant mode'
+                ScreenHeight = document.documentElement.clientHeight;
+            }
+            else if (document.body && (document.body.clientWidth || document.body.clientHeight)) {//IE 4 compatible
+                ScreenHeight = document.body.clientHeight;
+            }
+            return ScreenHeight;
+        }
+
+
+        function ErrorHandler(ErrorCode, Description) {
+            Message[0][0] = ErrorCode;
+            Message[0][1] = 1; //Error
+            Message[0][2] = Description;
+            Message[0][3] = 2; //Agent
+            BEAMResponse[0][0] = JSON.stringify(Message);
+        }
+        
+    </script>
+</body>
+</html>

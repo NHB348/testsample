@@ -1,0 +1,29 @@
+#sdk: "C:/MotorolaRhoMobileSuite5.0.2/ruby/lib/ruby/gems/1.9.1/gems/rhodes-5.0.2"
+sdkversion: "5.0.0"
+name: "ControlBEAM"
+version: 1.0
+vendor: "ControlBEAM"
+build: "debug"
+applog: "rholog.txt"
+javascript_application: true
+iphone:
+  configuration: "Release"
+  sdk: "iphonesimulator7.0"
+  provisionprofile: 
+  codesignidentity: "iPhone Developer"
+  entitlements: 
+  BundleIdentifier: "com.rhomobile.controlbeam"
+  BundleURLScheme: "controlbeam"
+wp8:
+  productid: "336b1640-fc2b-0131-c073-002713a3a9ef"
+android:
+  manifest_template: "AndroidManifest.erb"
+  version: "2.3.3"
+  emulator: "ControlBEAM"
+  capabilities:
+#sdk: "MC3000c50b (ARMV4I)"
+#sdk: "Windows Mobile 6.5.3 Professional DTK (ARMV4I)"
+wm: 
+extensions:
+  - rhoconnect-client
+capabilities:
