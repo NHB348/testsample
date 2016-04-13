@@ -1,5 +1,5 @@
 #sdk: "C:/MotorolaRhoMobileSuite5.0.2/ruby/lib/ruby/gems/1.9.1/gems/rhodes-5.0.2"
-sdkversion: "5.0.0"
+sdkversion: "5.4.0"
 name: "ControlBEAM"
 version: 1.0
 vendor: "ControlBEAM"
