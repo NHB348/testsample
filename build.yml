@@ -17,11 +17,24 @@ iphone:
 wp8:
   productid: "336b1640-fc2b-0131-c073-002713a3a9ef"
 android:
-  manifest_template: "AndroidManifest.erb"
+android:
+  android_title: 1
   version: "4.2.2"
   abis: [arm, x86]
-  emulator: "ControlBEAM"
-  capabilities:
+  manifest_template: AndroidManifest.erb
+  extensions:
+    - rhoconnect-client
+    - audiocapture
+    - signature
+    - barcode
+    - indicators
+    - cardreader
+    - mediaplayer
+    - screenorientation
+    - sensor
+    - printing
+    - printing_zebra
+    - mediacapture 
 #sdk: "MC3000c50b (ARMV4I)"
 #sdk: "Windows Mobile 6.5.3 Professional DTK (ARMV4I)"
 wm: 
