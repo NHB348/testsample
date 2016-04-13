@@ -20,5 +20,5 @@ android:
   manifest_template: "AndroidManifest.erb"
   version: "4.2.4"
   emulator: "ControlBEAM"
-  capabilities:
+  
 
